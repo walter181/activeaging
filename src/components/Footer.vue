@@ -1,9 +1,7 @@
 <template>
-  <div class="container">
-    <nav class="navbar navbar-expand-md">
-      <a class="navbar-brand" href="#">
-        <img src="../images/logo_activeaging.svg" alt="Logo" height="50" />
-      </a>
+  <nav class="navbar navbar-expand-md">
+    <div class="container">
+      <a class="navbar-brand" href="#">Logo</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -27,26 +25,19 @@
             <a class="nav-link" href="#">News</a>
           </li>
           <div class="separator"></div>
-          <li class="nav-item-register">
+          <li class="nav-item">
             <a class="btn btn-register" href="#">Register</a>
           </li>
-          <li class="nav-item-login">
+          <li class="nav-item">
             <a class="btn btn-login" href="#">Log In</a>
           </li>
         </ul>
       </div>
-    </nav>
-  </div>
+    </div>
+  </nav>
 </template>
 
 <style scoped>
-.btn-login {
-  background-color: #28a745; /* Bootstrap的默认绿色 */
-  border-color: #28a745;
-  padding-left: 20px;
-  padding-right: 20px;
-  color: aliceblue;
-}
 .navbar {
   height: 80px;
 }
@@ -59,12 +50,27 @@
   margin-right: 26px;
 }
 
+.btn-login {
+  background-color: #28a745;
+  border-color: #28a745;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: aliceblue;
+}
+.nav-item .btn-register {
+  margin-right: -14px;
+}
+.btn-login {
+  background-color: #28a745; /* Bootstrap的默认绿色 */
+  border-color: #28a745;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: aliceblue;
+}
 .nav-link:hover {
   color: #28a745;
 }
-.nav-item-register {
-  margin-right: 10px;
-}
+
 .btn-register:hover {
   background-color: #28a7463e;
   color: #28a745;
