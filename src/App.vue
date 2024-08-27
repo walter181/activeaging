@@ -1,11 +1,20 @@
+<script setup>
+import BHeader from './components/NavBar.vue'
+import BFooter from './components/Footer.vue'
+</script>
+
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <header>
+    <BHeader />
+  </header>
+
+  <main>
+    <router-view></router-view>
+  </main>
+
+  <footer>
+    <BFooter />
+  </footer>
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
-</script>
+<style scoped></style>

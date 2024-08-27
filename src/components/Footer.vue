@@ -6,10 +6,9 @@
           <div class="align-items-center mb-3">
             <img src="../images/logo_activeaging.svg" alt="Logo" height="60" />
           </div>
-          <div>
+          <div style="padding-right: 30px">
             <p class="about_text">
-              About us : <br />ActiveAging is an online platform offering activities for seniors
-              to<br />
+              About us : <br />ActiveAging is an online platform offering activities for seniors to
               combat loneliness, foster social connections.
             </p>
           </div>
@@ -27,7 +26,7 @@
         </div>
         <div class="col-md-4">
           <h5 class="text-uppercase">How to Contact Us</h5>
-          <div>
+          <div style="padding-right: 30px">
             <img src="../images/address.svg" alt="Logo" height="20" style="margin-right: 4px" />
             Address: Monash University, Clayton Campus Wellington Road, Clayton VIC 3800, Melbourne,
             Australia.
@@ -38,7 +37,7 @@
                 src="../images/phone.svg"
                 alt="Logo"
                 height="20"
-                style="margin-right: 4px"
+                style="margin-right: 8px"
               />Phone : 183290384721
             </p>
           </div>
@@ -58,5 +57,3 @@
     </div>
   </footer>
 </template>
-
-<style scoped></style>

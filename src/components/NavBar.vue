@@ -1,3 +1,4 @@
+<script setup></script>
 <template>
   <div class="container">
     <nav class="navbar navbar-expand-md">
@@ -13,25 +14,30 @@
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
-        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon" style="width: 26px"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <router-link to="/" class="nav-link" active-class="nav-active" aria-current="page"
+              >Home</router-link
+            >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Activities</a>
+            <router-link to="/activities" class="nav-link" active-class="nav-active"
+              >Activities</router-link
+            >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">News</a>
+            <router-link to="/news" class="nav-link" active-class="nav-active">News</router-link>
           </li>
-          <div class="separator"></div>
           <li class="nav-item-register">
-            <a class="btn btn-register" href="#">Register</a>
+            <router-link to="/register" class="nav-link" active-class="nav-active"
+              >Register</router-link
+            >
           </li>
           <li class="nav-item-login">
-            <a class="btn btn-login" href="#">Log In</a>
+            <router-link to="/login" class="nav-link" active-class="nav-active">Log in</router-link>
           </li>
         </ul>
       </div>
@@ -40,46 +46,77 @@
 </template>
 
 <style scoped>
-.btn-login {
-  background-color: #28a745; /* Bootstrap的默认绿色 */
-  border-color: #28a745;
-  padding-left: 20px;
-  padding-right: 20px;
-  color: aliceblue;
-}
-.navbar {
-  height: 80px;
-}
-.navbar-brand,
-.nav-link,
-.btn {
+.nav-link {
   font-size: 1.2rem; /* 增大文字大小以提高可读性 */
 }
-.nav-item {
-  margin-right: 26px;
+/* 确保nav-active类生效 */
+.nav-link.nav-active {
+  color: #28a745 !important; /* 选中项变绿 */
+  font-weight: bold;
 }
 
-.nav-link:hover {
-  color: #28a745;
+/* 其他样式 */
+.nav-item-login {
+  width: 100px;
+  border: 1px solid #28a745;
+  margin-right: 10px;
+  text-align: center;
+  border-radius: 5px;
 }
 .nav-item-register {
+  width: 100px;
+  border: 1px solid #28a745;
   margin-right: 10px;
+  text-align: center;
+  border-radius: 5px;
 }
-.btn-register:hover {
-  background-color: #28a7463e;
-  color: #28a745;
+.nav-item {
+  margin-right: 40px;
 }
-.btn-login:hover {
-  background-color: #218838;
-  border-color: #218838;
-  box-shadow: 0px 4px 8px rgba(40, 167, 69, 0.5);
-  color: aliceblue;
+.navbar-toggler {
+  width: 50px;
 }
-.separator {
-  width: 2px;
-  height: 18px;
-  background-color: #d3d3d3;
-  margin-top: 13px;
-  margin-right: 10px;
+@media (max-width: 767px) {
+  #navbarNav {
+    top: calc(100%);
+    width: 100%;
+    z-index: 100;
+    position: absolute;
+    background-color: white;
+    border-radius: 0 0 10px 10px; /* 添加下圆角，半径可以根据需要调整 */
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2); /* 添加绿色阴影，调整透明度和偏移量 */
+  }
+  .nav-item-login {
+    background-color: initial;
+    border: none;
+    width: auto;
+    text-align: right;
+    border-radius: 0;
+    margin-right: 0px;
+  }
+  .nav-item-register {
+    background-color: initial;
+    border: none;
+    width: auto;
+    text-align: right;
+    border-radius: 0;
+    margin-right: 0px;
+  }
+  .nav-item {
+    margin-right: 0px;
+    text-align: right;
+  }
+  .nav-item:hover {
+    background-color: #28a7463e;
+  }
+  .nav-item-login:hover {
+    background-color: #28a7463e;
+  }
+  .nav-item-register:hover {
+    background-color: #28a7463e;
+  }
+  .nav-link {
+    padding-right: 15px;
+  }
 }
 </style>
