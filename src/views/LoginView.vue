@@ -1,5 +1,58 @@
 <script setup>
 import { ref } from 'vue'
+
+const adminAccount = {
+  username: 'admin',
+  password: 'admin181'
+}
+
+const formData = ref({
+  username: '',
+  password: ''
+})
+
+const submittedCards = ref([])
+const errors = ref({
+  username: null,
+  password: null
+})
+const submitForm = () => {
+  validateName(true)
+  validatePassword(true)
+  if (!errors.value.username && !errors.value.password) {
+    submittedCards.value.push({ ...formData.value })
+    clearForm()
+  }
+}
+
+const validateName = (blur) => {
+  if (formData.value.username.length < 3) {
+    if (blur) errors.value.username = 'Name must be at least 3 characters'
+  } else {
+    errors.value.username = null
+  }
+}
+
+const validatePassword = (blur) => {
+  const password = formData.value.password
+  const minLength = 8
+  const hasLowercase = /[a-z]/.test(password)
+  const hasNumber = /\d/.test(password)
+  if (password.length < minLength) {
+    if (blur) errors.value.password = `Password must be at least ${minLength} characters long.`
+  } else if (!hasLowercase) {
+    if (blur) errors.value.password = 'Password must contain at least one lowercase letter.'
+  } else if (!hasNumber) {
+    if (blur) errors.value.password = 'Password must contain at least one number.'
+  } else {
+    errors.value.password = null
+  }
+}
+
+const clearForm = () => {
+  formData.value.username = ''
+  formData.value.password = ''
+}
 </script>
 
 <template>
@@ -30,9 +83,13 @@ import { ref } from 'vue'
             type="text"
             id="username"
             class="form-control"
-            placeholder="Enter your username"
+            placeholder="Enter your full name"
+            v-model="formData.username"
+            @blur="validateName(true)"
+            @input="() => validateName(false)"
             required
           />
+          <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
         </div>
         <div class="form-group mt-3">
           <label for="password" class="form-label">Password</label>
@@ -41,12 +98,12 @@ import { ref } from 'vue'
             id="password"
             class="form-control"
             placeholder="Enter your password"
+            v-model="formData.password"
+            @blur="validatePassword(true)"
+            @input="() => validatePassword(false)"
             required
           />
-        </div>
-        <div class="form-group mt-3 form-check">
-          <input type="checkbox" id="rememberMe" class="form-check-input" />
-          <label for="rememberMe" class="form-check-label">Remember me</label>
+          <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
         </div>
         <div class="mt-4 text-center">
           <button type="submit" class="btn btn-success w-100">Log In</button>

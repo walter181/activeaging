@@ -31,13 +31,26 @@
           <li class="nav-item">
             <router-link to="/news" class="nav-link" active-class="nav-active">News</router-link>
           </li>
-          <li class="nav-item-register">
+          <!-- 修改登录后进入页面不同的导航栏 -->
+          <li class="nav-item-register" v-if="!isAuthenticated">
             <router-link to="/register" class="nav-link" active-class="nav-active"
               >Register</router-link
             >
           </li>
-          <li class="nav-item-login">
+          <li class="nav-item" v-if="isAuthenticated && userRole === 'user'">
+            <router-link to="/" class="nav-link" active-class="nav-active">Myprofile</router-link>
+          </li>
+          <li class="nav-item" v-if="isAuthenticated && userRole === 'admin'">
+            <router-link to="/" class="nav-link" active-class="nav-active">Management</router-link>
+          </li>
+          <!-- <li class="nav-item-login">
             <router-link to="/login" class="nav-link" active-class="nav-active">Log in</router-link>
+          </li> -->
+          <li class="nav-item-login" v-if="!isAuthenticated">
+            <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
+          </li>
+          <li class="nav-item-logout" v-if="isAuthenticated">
+            <button class="nav-link" @click="logout">Logout</button>
           </li>
         </ul>
       </div>
@@ -63,6 +76,14 @@
   text-align: center;
   border-radius: 5px;
 }
+.nav-item-logout {
+  width: 100px;
+  border: 1px solid #28a745;
+  margin-right: 10px;
+  text-align: center;
+  border-radius: 5px;
+}
+
 .nav-item-register {
   width: 100px;
   border: 1px solid #28a745;

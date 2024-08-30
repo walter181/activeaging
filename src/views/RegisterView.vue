@@ -7,35 +7,27 @@ const formData = ref({
   confirmPassword: ''
 })
 const submittedCards = ref([])
+const errors = ref({
+  username: null,
+  email: null,
+  password: null,
+  confirmPassword: null
+})
 const submitForm = () => {
   validateName(true)
   validatePassword(true)
   validateConfirmPassword(true)
   validateEmail(true)
-  if (!errors.value.username && !errors.value.password && !errors.value.confirmPassward && !errors.value.reason) {
+  if (
+    !errors.value.username &&
+    !errors.value.password &&
+    !errors.value.confirmPassword &&
+    !errors.value.email
+  ) {
     submittedCards.value.push({ ...formData.value })
     clearForm()
   }
 }
-
-const clearForm = () => {
-  formData.value = {
-    username: '',
-    password: '',
-    isAustralian: false,
-    reason: '',
-    gender: ''
-  }
-}
-
-const errors = ref({
-  username: null,
-  password: null,
-  confirmPassword: null,
-  resident: null,
-  gender: null,
-  reason: null
-})
 
 const validateName = (blur) => {
   if (formData.value.username.length < 3) {
@@ -45,24 +37,27 @@ const validateName = (blur) => {
   }
 }
 
+const validateEmail = (blur) => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(formData.value.email)) {
+    if (blur) errors.value.email = 'Email must be in the correct email format.'
+  } else {
+    errors.value.email = null
+  }
+}
+
 const validatePassword = (blur) => {
   const password = formData.value.password
   const minLength = 8
-  const hasUppercase = /[A-Z]/.test(password)
   const hasLowercase = /[a-z]/.test(password)
   const hasNumber = /\d/.test(password)
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
 
   if (password.length < minLength) {
     if (blur) errors.value.password = `Password must be at least ${minLength} characters long.`
-  } else if (!hasUppercase) {
-    if (blur) errors.value.password = 'Password must contain at least one uppercase letter.'
   } else if (!hasLowercase) {
     if (blur) errors.value.password = 'Password must contain at least one lowercase letter.'
   } else if (!hasNumber) {
     if (blur) errors.value.password = 'Password must contain at least one number.'
-  } else if (!hasSpecialChar) {
-    if (blur) errors.value.password = 'Password must contain at least one special character.'
   } else {
     errors.value.password = null
   }
@@ -74,22 +69,13 @@ const validateConfirmPassword = (blur) => {
     errors.value.confirmPassword = null
   }
 }
-const validateReason = (blur) => {
-  if (formData.value.reason.length < 5) {
-    if (blur) errors.value.reason = 'Reason must be at least 5 charachters.'
-  } else {
-    errors.value.reason = null
-  }
-}
-const validateReasonContainWord = (blur) => {
-  if (formData.value.reason.includes('friend')) {
-    if (blur) reasonHasFriend.value = true
-  } else {
-    reasonHasFriend.value = null
-  }
-}
 
-const reasonHasFriend = ref(false)
+const clearForm = () => {
+  formData.value.username = ''
+  formData.value.email = ''
+  formData.value.password = ''
+  formData.value.confirmPassword = ''
+}
 </script>
 
 <template>
@@ -118,11 +104,15 @@ const reasonHasFriend = ref(false)
           <label for="name" class="form-label">Name</label>
           <input
             type="text"
-            id="name"
+            id="username"
             class="form-control"
             placeholder="Enter your full name"
+            v-model="formData.username"
+            @blur="validateName(true)"
+            @input="() => validateName(false)"
             required
           />
+          <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
         </div>
         <div class="form-group mt-3">
           <label for="email" class="form-label">Email</label>
@@ -131,8 +121,12 @@ const reasonHasFriend = ref(false)
             id="email"
             class="form-control"
             placeholder="Enter your email"
+            v-model="formData.email"
+            @blur="validateEmail(true)"
+            @input="() => validateEmail(false)"
             required
           />
+          <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
         </div>
         <div class="form-group mt-3">
           <label for="password" class="form-label">Password</label>
@@ -141,8 +135,12 @@ const reasonHasFriend = ref(false)
             id="password"
             class="form-control"
             placeholder="Enter your password"
+            v-model="formData.password"
+            @blur="validatePassword(true)"
+            @input="() => validatePassword(false)"
             required
           />
+          <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
         </div>
         <div class="form-group mt-3">
           <label for="confirmPassword" class="form-label">Confirm Password</label>
@@ -151,8 +149,12 @@ const reasonHasFriend = ref(false)
             id="confirmPassword"
             class="form-control"
             placeholder="Confirm your password"
+            v-model="formData.confirmPassword"
+            @blur="validateConfirmPassword(true)"
+            @input="() => validateConfirmPassword(false)"
             required
           />
+          <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
         </div>
         <div class="mt-4 text-center">
           <button type="submit" class="btn btn-success w-100">Register</button>
