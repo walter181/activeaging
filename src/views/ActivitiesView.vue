@@ -1,5 +1,7 @@
 <script setup></script>
 
 <template>
-  <div>the activites page</div>
+  <div class="container">
+    <h1>the activities page</h1>
+  </div>
 </template>

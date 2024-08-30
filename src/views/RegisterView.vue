@@ -1,18 +1,22 @@
 <script setup>
+import router from '@/router/index'
 import { ref } from 'vue'
+import { login } from '@/router/authenticate'
+
 const formData = ref({
   username: '',
   email: '',
   password: '',
   confirmPassword: ''
 })
-const submittedCards = ref([])
+
 const errors = ref({
   username: null,
   email: null,
   password: null,
   confirmPassword: null
 })
+
 const submitForm = () => {
   validateName(true)
   validatePassword(true)
@@ -24,8 +28,27 @@ const submitForm = () => {
     !errors.value.confirmPassword &&
     !errors.value.email
   ) {
-    submittedCards.value.push({ ...formData.value })
+    //reference from https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+    //reference from https://dev.to/iarchitsharma/web-storage-in-javascript-mbi
+
+    const users = JSON.parse(localStorage.getItem('registeredUsers')) || []
+    // 模拟将用户信息保存到 localStorage 中
+    const newUser = {
+      username: formData.value.username,
+      email: formData.value.email,
+      password: formData.value.password
+    }
+    users.push(newUser)
+    localStorage.setItem('registeredUsers', JSON.stringify(users))
+
+    // 自动登录并设置用户角色为 'user'
+    login('user')
+
+    // 清空表单
     clearForm()
+
+    // 跳转到 'MyProfile' 页面
+    router.push('/myprofile')
   }
 }
 
@@ -79,6 +102,7 @@ const clearForm = () => {
 </script>
 
 <template>
+  <!-- reference the class sample -->
   <div class="container">
     <div class="row justify-content-center" style="margin-bottom: 10px">
       <div class="weclome-words mt-5 col-lg-6">
@@ -100,7 +124,7 @@ const clearForm = () => {
     </div>
     <div class="row justify-content-center" style="margin-bottom: 120px">
       <form @submit.prevent="submitForm" class="i-form col-lg-6">
-        <div class="form-group mt-3">
+        <div class="mt-3">
           <label for="name" class="form-label">Name</label>
           <input
             type="text"
@@ -110,11 +134,10 @@ const clearForm = () => {
             v-model="formData.username"
             @blur="validateName(true)"
             @input="() => validateName(false)"
-            required
           />
           <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
         </div>
-        <div class="form-group mt-3">
+        <div class="mt-3">
           <label for="email" class="form-label">Email</label>
           <input
             type="email"
@@ -124,11 +147,10 @@ const clearForm = () => {
             v-model="formData.email"
             @blur="validateEmail(true)"
             @input="() => validateEmail(false)"
-            required
           />
           <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
         </div>
-        <div class="form-group mt-3">
+        <div class="mt-3">
           <label for="password" class="form-label">Password</label>
           <input
             type="password"
@@ -138,11 +160,10 @@ const clearForm = () => {
             v-model="formData.password"
             @blur="validatePassword(true)"
             @input="() => validatePassword(false)"
-            required
           />
           <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
         </div>
-        <div class="form-group mt-3">
+        <div class="mt-3">
           <label for="confirmPassword" class="form-label">Confirm Password</label>
           <input
             type="password"
@@ -152,7 +173,6 @@ const clearForm = () => {
             v-model="formData.confirmPassword"
             @blur="validateConfirmPassword(true)"
             @input="() => validateConfirmPassword(false)"
-            required
           />
           <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
         </div>
@@ -167,8 +187,8 @@ const clearForm = () => {
 <style scoped>
 .i-form {
   border: 2px solid #28a746ae;
-  border-radius: 15px; /* 圆角 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影 */
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding-bottom: 20px;
 }
 </style>

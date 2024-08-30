@@ -1,4 +1,12 @@
-<script setup></script>
+<script setup>
+import { useRouter } from 'vue-router'
+import { logstate, systemrole, logout } from '@/router/authenticate'
+const router = useRouter()
+const putlogout = () => {
+  logout()
+  router.push('/login')
+}
+</script>
 <template>
   <div class="container">
     <nav class="navbar navbar-expand-md">
@@ -32,25 +40,24 @@
             <router-link to="/news" class="nav-link" active-class="nav-active">News</router-link>
           </li>
           <!-- 修改登录后进入页面不同的导航栏 -->
-          <li class="nav-item-register" v-if="!isAuthenticated">
+          <li class="nav-item-register" v-if="!logstate">
             <router-link to="/register" class="nav-link" active-class="nav-active"
               >Register</router-link
             >
           </li>
-          <li class="nav-item" v-if="isAuthenticated && userRole === 'user'">
-            <router-link to="/" class="nav-link" active-class="nav-active">Myprofile</router-link>
+          <li class="nav-item" v-if="logstate && systemrole === 'user'">
+            <router-link to="/myprofile" class="nav-link" active-class="nav-active"
+              >MyProfile</router-link
+            >
           </li>
-          <li class="nav-item" v-if="isAuthenticated && userRole === 'admin'">
+          <li class="nav-item" v-if="logstate && systemrole === 'admin'">
             <router-link to="/" class="nav-link" active-class="nav-active">Management</router-link>
           </li>
-          <!-- <li class="nav-item-login">
-            <router-link to="/login" class="nav-link" active-class="nav-active">Log in</router-link>
-          </li> -->
-          <li class="nav-item-login" v-if="!isAuthenticated">
+          <li class="nav-item-login" v-if="!logstate">
             <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
           </li>
-          <li class="nav-item-logout" v-if="isAuthenticated">
-            <button class="nav-link" @click="logout">Logout</button>
+          <li class="nav-item-logout" v-if="logstate">
+            <button class="nav-link out-btn" @click="putlogout">Logout</button>
           </li>
         </ul>
       </div>
@@ -67,6 +74,9 @@
   color: #28a745 !important; /* 选中项变绿 */
   font-weight: bold;
 }
+.out-btn {
+  text-align: center;
+}
 
 /* 其他样式 */
 .nav-item-login {
@@ -76,6 +86,7 @@
   text-align: center;
   border-radius: 5px;
 }
+
 .nav-item-logout {
   width: 100px;
   border: 1px solid #28a745;

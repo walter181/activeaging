@@ -2,7 +2,7 @@
 
 <template>
 <div>
-	the management page
+	
 </div>
 </template>
 

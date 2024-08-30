@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-
+import router from '@/router/index'
+import { login } from '@/router/authenticate' // 导入登录功能
 const adminAccount = {
   username: 'admin',
   password: 'admin181'
@@ -11,17 +12,35 @@ const formData = ref({
   password: ''
 })
 
-const submittedCards = ref([])
 const errors = ref({
   username: null,
   password: null
 })
+
 const submitForm = () => {
   validateName(true)
   validatePassword(true)
   if (!errors.value.username && !errors.value.password) {
-    submittedCards.value.push({ ...formData.value })
-    clearForm()
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || []
+
+    if (
+      formData.value.username === adminAccount.username &&
+      formData.value.password === adminAccount.password
+    ) {
+      login('admin')
+      router.push('/management')
+    } else {
+      const foundUser = registeredUsers.find(
+        (user) =>
+          user.username === formData.value.username && user.password === formData.value.password
+      )
+      if (foundUser) {
+        login('user')
+        router.push('/myprofile')
+      } else {
+        errors.value.username = 'Invalid username or password'
+      }
+    }
   }
 }
 
@@ -47,11 +66,6 @@ const validatePassword = (blur) => {
   } else {
     errors.value.password = null
   }
-}
-
-const clearForm = () => {
-  formData.value.username = ''
-  formData.value.password = ''
 }
 </script>
 
@@ -87,7 +101,6 @@ const clearForm = () => {
             v-model="formData.username"
             @blur="validateName(true)"
             @input="() => validateName(false)"
-            required
           />
           <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
         </div>
@@ -101,7 +114,6 @@ const clearForm = () => {
             v-model="formData.password"
             @blur="validatePassword(true)"
             @input="() => validatePassword(false)"
-            required
           />
           <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
         </div>

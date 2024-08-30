@@ -4,6 +4,9 @@ import LoginView from '../views/LoginView.vue'
 import NewsView from '../views/NewsView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ActivitiesView from '@/views/ActivitiesView.vue'
+import Myprofile from '@/views/Myprofile.vue'
+import ManagementView from '@/views/ManagementView.vue'
+import { logstate, systemrole } from '@/router/authenticate'
 
 const routes = [
   {
@@ -30,6 +33,30 @@ const routes = [
     path: '/activities',
     name: 'Activities',
     component: ActivitiesView
+  },
+  {
+    path: '/myprofile',
+    name: 'MyProfile',
+    component: Myprofile,
+    beforeEnter: (to, from, next) => {
+      if (logstate.value && systemrole.value === 'user') {
+        next()
+      } else {
+        next('/login')
+      }
+    }
+  },
+  {
+    path: '/management',
+    name: 'Management',
+    component: ManagementView,
+    beforeEnter: (to, from, next) => {
+      if (logstate.value && systemrole.value === 'admin') {
+        next()
+      } else {
+        next('/login')
+      }
+    }
   }
 ]
 
