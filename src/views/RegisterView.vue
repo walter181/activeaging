@@ -2,26 +2,27 @@
 import router from '@/router/index'
 import { ref } from 'vue'
 import { login } from '@/router/authenticate'
-
+// Reactive reference for form data
 const formData = ref({
   username: '',
   email: '',
   password: '',
   confirmPassword: ''
 })
-
+// Reactive reference for error messages
 const errors = ref({
   username: null,
   email: null,
   password: null,
   confirmPassword: null
 })
-
+// Function to handle form submission
 const submitForm = () => {
   validateName(true)
   validatePassword(true)
   validateConfirmPassword(true)
   validateEmail(true)
+  // If there are no errors, handle user registration
   if (
     !errors.value.username &&
     !errors.value.password &&
@@ -30,36 +31,39 @@ const submitForm = () => {
   ) {
     //reference from https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
     //reference from https://dev.to/iarchitsharma/web-storage-in-javascript-mbi
-
+    // Retrieve registered users data from localStorage
     const users = JSON.parse(localStorage.getItem('registeredUsers')) || []
-    // 模拟将用户信息保存到 localStorage 中
+    // saving user information to localStorage
     const newUser = {
       username: formData.value.username,
       email: formData.value.email,
       password: formData.value.password
     }
+    //add the newuser information in the array
     users.push(newUser)
     localStorage.setItem('registeredUsers', JSON.stringify(users))
-
-    // 自动登录并设置用户角色为 'user'
+    //  set user role to 'user'
     login('user')
-
-    // 清空表单
     clearForm()
-
-    // 跳转到 'MyProfile' 页面
+    //push to the 'MyProfile' page
     router.push('/myprofile')
   }
 }
-
+// validate username field
 const validateName = (blur) => {
+  //check the username contain to prevent injection
+  const isform = /^[a-zA-Z0-9]+$/.test(formData.value.username)
   if (formData.value.username.length < 3) {
     if (blur) errors.value.username = 'Name must be at least 3 characters'
+  } else if (formData.value.username.length > 20) {
+    if (blur) errors.value.username = 'Name must not be at longer than 20 characters'
+  } else if (!isform) {
+    if (blur) errors.value.username = 'username can only contained by letters and numbers.'
   } else {
     errors.value.username = null
   }
 }
-
+// validate email
 const validateEmail = (blur) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailPattern.test(formData.value.email)) {
@@ -68,23 +72,31 @@ const validateEmail = (blur) => {
     errors.value.email = null
   }
 }
-
+// validate password
 const validatePassword = (blur) => {
   const password = formData.value.password
   const minLength = 8
   const hasLowercase = /[a-z]/.test(password)
   const hasNumber = /\d/.test(password)
+  const maxLength = 20
+  //check the passward contain to prevent injection
+  const isform = /^[a-zA-Z0-9]+$/.test(password)
 
   if (password.length < minLength) {
-    if (blur) errors.value.password = `Password must be at least ${minLength} characters long.`
+    if (blur) errors.value.password = 'Password must be at least 3 characters long.'
+  } else if (password.length > maxLength) {
+    if (blur) errors.value.password = 'Password must be no longer than 20 characters long.'
   } else if (!hasLowercase) {
     if (blur) errors.value.password = 'Password must contain at least one lowercase letter.'
   } else if (!hasNumber) {
     if (blur) errors.value.password = 'Password must contain at least one number.'
+  } else if (!isform) {
+    if (blur) errors.value.password = 'Password can only contained by letters and numbers.'
   } else {
     errors.value.password = null
   }
 }
+// validate confirm password
 const validateConfirmPassword = (blur) => {
   if (formData.value.password !== formData.value.confirmPassword) {
     if (blur) errors.value.confirmPassword = 'Passwords do not match.'
@@ -92,7 +104,7 @@ const validateConfirmPassword = (blur) => {
     errors.value.confirmPassword = null
   }
 }
-
+// Clear form fields
 const clearForm = () => {
   formData.value.username = ''
   formData.value.email = ''

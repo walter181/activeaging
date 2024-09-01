@@ -1,27 +1,31 @@
 <script setup>
 import { ref, computed } from 'vue'
-
+// To initialize
 const inputrate = ref(0)
+// reference and learn from https://gist.github.com/ChaDonSom/a61d2d592e06c90be23b77f257c587d2
+// To initialize rates directly from localStorage, i storage the list in localStorage
+const rates = ref(JSON.parse(localStorage.getItem('gardenRatings')) || [])
 
-// 初始化 `rates`，直接从 `localStorage` 中获取数据
-const rates = ref(JSON.parse(localStorage.getItem('gardeningRatings')) || [])
-
-// 计算平均评分
+// count to the average rate for the activity
 const averageRate = computed(() => {
   if (rates.value.length === 0) {
     return 0
+  } else {
+    const sum = rates.value.reduce((a, b) => a + b, 0)
+    return (sum / rates.value.length).toFixed(1)
   }
-  const sum = rates.value.reduce((a, b) => a + b, 0)
-  return (sum / rates.value.length).toFixed(1)
 })
 
-// 保存评分
+// to save the rate to the rates list in localStorage
 const saveRate = () => {
   const rating = inputrate.value
   if (rating >= 1 && rating <= 10) {
+    // Add the new rating to the rates array
     rates.value.push(rating)
-    localStorage.setItem('gardeningRatings', JSON.stringify(rates.value))
-    inputrate.value = '' // 清空输入框
+    // translate to json and then storage in localStorage
+    localStorage.setItem('gardenRatings', JSON.stringify(rates.value))
+    // to save the rate to the rates list in localStorage
+    inputrate.value = '' // Clear the input
   } else {
     alert('Please enter a number between 1 and 10')
   }
@@ -105,8 +109,8 @@ const saveRate = () => {
   /* height: 200px; */
   background-color: rgb(251, 251, 251);
   border: 2px solid #e9e9e9ae;
-  border-radius: 15px; /* 圆角 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影 */
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .acttable {
   margin-bottom: 80px;
