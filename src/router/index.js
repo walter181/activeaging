@@ -38,6 +38,8 @@ const routes = [
     path: '/myprofile',
     name: 'MyProfile',
     component: Myprofile,
+    // reference from https://router.vuejs.org/guide/advanced/navigation-guards.html
+    // Route guard to check if the user is logged in and has the 'user' role
     beforeEnter: (to, from, next) => {
       if (logstate.value && systemrole.value === 'user') {
         next()
@@ -50,6 +52,7 @@ const routes = [
     path: '/management',
     name: 'Management',
     component: ManagementView,
+    // Route guard to check if the user is logged in and has the 'admin' role
     beforeEnter: (to, from, next) => {
       if (logstate.value && systemrole.value === 'admin') {
         next()
