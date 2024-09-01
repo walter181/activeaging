@@ -51,7 +51,9 @@ const putlogout = () => {
             >
           </li>
           <li class="nav-item" v-if="logstate && systemrole === 'admin'">
-            <router-link to="/" class="nav-link" active-class="nav-active">Management</router-link>
+            <router-link to="/management" class="nav-link" active-class="nav-active"
+              >Management</router-link
+            >
           </li>
           <li class="nav-item-login" v-if="!logstate">
             <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
