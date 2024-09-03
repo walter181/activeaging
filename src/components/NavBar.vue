@@ -39,7 +39,6 @@ const putlogout = () => {
           <li class="nav-item">
             <router-link to="/news" class="nav-link" active-class="nav-active">News</router-link>
           </li>
-          <!-- 修改登录后进入页面不同的导航栏 -->
           <li class="nav-item-register" v-if="!logstate">
             <router-link to="/register" class="nav-link" active-class="nav-active"
               >Register</router-link
@@ -69,18 +68,16 @@ const putlogout = () => {
 
 <style scoped>
 .nav-link {
-  font-size: 1.2rem; /* 增大文字大小以提高可读性 */
+  font-size: 1.2rem;
 }
-/* 确保nav-active类生效 */
 .nav-link.nav-active {
-  color: #28a745 !important; /* 选中项变绿 */
+  color: #28a745 !important;
   font-weight: bold;
 }
 .out-btn {
   text-align: center;
 }
 
-/* 其他样式 */
 .nav-item-login {
   width: 100px;
   border: 1px solid #28a745;
@@ -117,8 +114,8 @@ const putlogout = () => {
     z-index: 100;
     position: absolute;
     background-color: white;
-    border-radius: 0 0 10px 10px; /* 添加下圆角，半径可以根据需要调整 */
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2); /* 添加绿色阴影，调整透明度和偏移量 */
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
   }
   .nav-item-login {
     background-color: initial;
