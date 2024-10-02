@@ -2,6 +2,8 @@
 import router from '@/router/index'
 import { ref } from 'vue'
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import { addDoc, collection } from 'firebase/firestore'
+import {db} from '../firebase/init.js'
 
 const formData = ref({
   username: '',
@@ -47,13 +49,29 @@ const submitForm = () => {
     !errors.value.email
   ) {
     createUserWithEmailAndPassword(auth, formData.value.email, formData.value.password)
-      .then((data) => {
+      .then(async (data) => {
         console.log('Firebase registration successful!')
-        router.push('/myprofile')
-        clearForm() // Clear form only after successful registration
+
+        // Add user info to Firestore, except password for security reasons
+        await addDoc(collection(db, 'users'), {
+          uid: data.user.uid, // Firebase-generated UID
+          username: formData.value.username, // Storing the username
+          email: formData.value.email, // Storing the email
+          role: 'user'
+        })
+
+        router.push('/myprofile') // Redirect to profile page
+        clearForm() // Clear the form after successful registration
       })
       .catch((error) => {
-        console.log(error.code)
+        // Enhanced error handling
+        if (error.code === 'auth/email-already-in-use') {
+          errors.value.email = 'This email is already in use.'
+        } else if (error.code === 'auth/weak-password') {
+          errors.value.password = 'The password is too weak.'
+        } else {
+          console.log('Error code: ', error.code)
+        }
       })
   }
 }

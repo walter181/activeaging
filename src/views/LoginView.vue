@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import router from '@/router/index'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { query, where, getDocs, collection } from 'firebase/firestore'
+import { db } from '../firebase/init.js'
 const auth = getAuth()
 // the admin information hardcode
 // const adminAccount = {
@@ -25,13 +27,29 @@ const submitForm = () => {
   validatePassword(true)
   if (!errors.value.email && !errors.value.password) {
     signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
-      .then((data) => {
+      .then(async (data) => {
+        const uid = data.user.uid
         console.log('Login Successful!')
-        router.push('/myprofile')
-        console.log(auth.currentUser) // Logs the currently signed-in user to check the authentication status
+        const q = query(collection(db, 'users'), where('uid', '==', uid))
+        const querySnapshot = await getDocs(q)
+
+        if (!querySnapshot.empty) {
+          // 获取第一个匹配的文档
+          const userDoc = querySnapshot.docs[0]
+          const userData = userDoc.data()
+          if (userData.role === 'admin') {
+            router.push('/Management')
+          } else {
+            router.push('/myprofile')
+          }
+          console.log('Current User:', auth.currentUser)
+        } else {
+          console.log('No such user document found!')
+        }
       })
       .catch((error) => {
-        console.log(error.code) // Logs any errors encountered during the sign-in process
+        console.log('Error code:', error.code) // 打印登录时遇到的错误
+        // 处理登录错误，例如显示错误消息
       })
   }
 }
