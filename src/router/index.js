@@ -6,7 +6,6 @@ import RegisterView from '../views/RegisterView.vue'
 import ActivitiesView from '@/views/ActivitiesView.vue'
 import Myprofile from '@/views/Myprofile.vue'
 import ManagementView from '@/views/ManagementView.vue'
-import { logstate, systemrole } from '@/router/authenticate'
 
 const routes = [
   {
@@ -37,29 +36,12 @@ const routes = [
   {
     path: '/myprofile',
     name: 'MyProfile',
-    component: Myprofile,
-    // reference from https://router.vuejs.org/guide/advanced/navigation-guards.html
-    // Route guard to check if the user is logged in and has the 'user' role
-    beforeEnter: (to, from, next) => {
-      if (logstate.value && systemrole.value === 'user') {
-        next()
-      } else {
-        next('/login')
-      }
-    }
+    component: Myprofile
   },
   {
     path: '/management',
     name: 'Management',
-    component: ManagementView,
-    // Route guard to check if the user is logged in and has the 'admin' role
-    beforeEnter: (to, from, next) => {
-      if (logstate.value && systemrole.value === 'admin') {
-        next()
-      } else {
-        next('/login')
-      }
-    }
+    component: ManagementView
   }
 ]
 

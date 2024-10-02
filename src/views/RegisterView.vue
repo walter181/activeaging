@@ -1,14 +1,15 @@
 <script setup>
 import router from '@/router/index'
 import { ref } from 'vue'
-import { login } from '@/router/authenticate'
-// Reactive reference for form data
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+
 const formData = ref({
   username: '',
   email: '',
   password: '',
   confirmPassword: ''
 })
+const auth = getAuth()
 // Reactive reference for error messages
 const errors = ref({
   username: null,
@@ -16,94 +17,112 @@ const errors = ref({
   password: null,
   confirmPassword: null
 })
+
 // Function to handle form submission
 const submitForm = () => {
   validateName(true)
   validatePassword(true)
   validateConfirmPassword(true)
   validateEmail(true)
-  // If there are no errors, handle user registration
+
+  // Check if fields are empty
+  if (!formData.value.username) {
+    errors.value.username = 'Username is required.'
+  }
+  if (!formData.value.email) {
+    errors.value.email = 'Email is required.'
+  }
+  if (!formData.value.password) {
+    errors.value.password = 'Password is required.'
+  }
+  if (!formData.value.confirmPassword) {
+    errors.value.confirmPassword = 'Confirm password is required.'
+  }
+
+  // If there are no errors, proceed with registration
   if (
     !errors.value.username &&
     !errors.value.password &&
     !errors.value.confirmPassword &&
     !errors.value.email
   ) {
-    //reference from https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
-    //reference from https://dev.to/iarchitsharma/web-storage-in-javascript-mbi
-    // Retrieve registered users data from localStorage
-    const users = JSON.parse(localStorage.getItem('registeredUsers')) || []
-    // saving user information to localStorage
-    const newUser = {
-      username: formData.value.username,
-      email: formData.value.email,
-      password: formData.value.password
-    }
-    //add the newuser information in the array
-    users.push(newUser)
-    localStorage.setItem('registeredUsers', JSON.stringify(users))
-    //  set user role to 'user'
-    login('user')
-    clearForm()
-    //push to the 'MyProfile' page
-    router.push('/myprofile')
+    createUserWithEmailAndPassword(auth, formData.value.email, formData.value.password)
+      .then((data) => {
+        console.log('Firebase registration successful!')
+        router.push('/myprofile')
+        clearForm() // Clear form only after successful registration
+      })
+      .catch((error) => {
+        console.log(error.code)
+      })
   }
 }
-// validate username field
+
+// Validate username
 const validateName = (blur) => {
-  //check the username contain to prevent injection
   const isform = /^[a-zA-Z0-9]+$/.test(formData.value.username)
-  if (formData.value.username.length < 3) {
-    if (blur) errors.value.username = 'Name must be at least 3 characters'
+  if (!formData.value.username) {
+    if (blur) errors.value.username = 'Username is required.'
+  } else if (formData.value.username.length < 3) {
+    if (blur) errors.value.username = 'Username must be at least 3 characters.'
   } else if (formData.value.username.length > 20) {
-    if (blur) errors.value.username = 'Name must not be at longer than 20 characters'
+    if (blur) errors.value.username = 'Username must not exceed 20 characters.'
   } else if (!isform) {
-    if (blur) errors.value.username = 'username can only contained by letters and numbers.'
+    if (blur) errors.value.username = 'Username can only contain letters and numbers.'
   } else {
     errors.value.username = null
   }
 }
-// validate email
+
+// Validate email
 const validateEmail = (blur) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailPattern.test(formData.value.email)) {
-    if (blur) errors.value.email = 'Email must be in the correct email format.'
+  if (!formData.value.email) {
+    if (blur) errors.value.email = 'Email is required.'
+  } else if (!emailPattern.test(formData.value.email)) {
+    if (blur) errors.value.email = 'Email must be in the correct format.'
   } else {
     errors.value.email = null
   }
 }
-// validate password
+
+// Validate password
 const validatePassword = (blur) => {
   const password = formData.value.password
   const minLength = 8
   const hasLowercase = /[a-z]/.test(password)
   const hasNumber = /\d/.test(password)
   const maxLength = 20
-  //check the passward contain to prevent injection
   const isform = /^[a-zA-Z0-9]+$/.test(password)
 
-  if (password.length < minLength) {
-    if (blur) errors.value.password = 'Password must be at least 3 characters long.'
+  if (!formData.value.password) {
+    if (blur) errors.value.password = 'Password is required.'
+  } else if (password.length < minLength) {
+    if (blur) errors.value.password = 'Password must be at least 8 characters long.'
   } else if (password.length > maxLength) {
-    if (blur) errors.value.password = 'Password must be no longer than 20 characters long.'
+    if (blur) errors.value.password = 'Password must not exceed 20 characters.'
   } else if (!hasLowercase) {
     if (blur) errors.value.password = 'Password must contain at least one lowercase letter.'
   } else if (!hasNumber) {
     if (blur) errors.value.password = 'Password must contain at least one number.'
   } else if (!isform) {
-    if (blur) errors.value.password = 'Password can only contained by letters and numbers.'
+    if (blur) errors.value.password = 'Password can only contain letters and numbers.'
   } else {
     errors.value.password = null
   }
 }
-// validate confirm password
+
+// Validate confirm password
 const validateConfirmPassword = (blur) => {
-  if (formData.value.password !== formData.value.confirmPassword) {
+  if (!formData.value.confirmPassword) {
+    if (blur) errors.value.confirmPassword = 'Confirm password is required.'
+  } else if (formData.value.password !== formData.value.confirmPassword) {
     if (blur) errors.value.confirmPassword = 'Passwords do not match.'
   } else {
     errors.value.confirmPassword = null
   }
 }
+
 // Clear form fields
 const clearForm = () => {
   formData.value.username = ''
@@ -114,20 +133,17 @@ const clearForm = () => {
 </script>
 
 <template>
-  <!-- reference the class sample -->
   <div class="container">
     <div class="row justify-content-center" style="margin-bottom: 10px">
-      <div class="weclome-words mt-5 col-lg-6">
+      <div class="welcome-words mt-5 col-lg-6">
         <div class="row">
           <div class="col-md-2 d-flex justify-content-center align-items-center">
             <img src="../images/logo2.svg" alt="" height="80px" />
           </div>
           <div class="col-md-10">
-            <div>
-              <h1 style="color: #28a745; font-weight:">Register your account</h1>
-            </div>
+            <h1 style="color: #28a745">Register your account</h1>
             <div style="color: #28a745">
-              At activeaging, we bring seniors together with vibrant activities, making every day
+              At ActiveAging, we bring seniors together with vibrant activities, making every day
               joyful and full of life!
             </div>
           </div>
@@ -135,14 +151,14 @@ const clearForm = () => {
       </div>
     </div>
     <div class="row justify-content-center" style="margin-bottom: 120px">
-      <form @submit.prevent="submitForm" class="i-form col-lg-6">
+      <form @submit.prevent="submitForm" @keydown.enter.prevent class="i-form col-lg-6">
         <div class="mt-3">
-          <label for="name" class="form-label">Name</label>
+          <label for="username" class="form-label">Username</label>
           <input
             type="text"
             id="username"
             class="form-control"
-            placeholder="Enter your full name"
+            placeholder="Enter your username"
             v-model="formData.username"
             @blur="validateName(true)"
             @input="() => validateName(false)"
