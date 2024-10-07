@@ -1,12 +1,40 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { logstate, systemrole, logout } from '@/router/authenticate'
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
+import { db } from '../firebase/init.js'
+import { query, where, getDocs, collection } from 'firebase/firestore'
+
 const router = useRouter()
-const putlogout = () => {
-  logout()
+const isLoggedIn = ref(false)
+const userRole = ref(null)
+const auth = getAuth()
+
+onMounted(() => {
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      isLoggedIn.value = true
+      const uid = user.uid
+
+      const q = query(collection(db, 'users'), where('uid', '==', uid))
+      const querySnapshot = await getDocs(q)
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0]
+        userRole.value = userDoc.data().role
+      }
+    } else {
+      isLoggedIn.value = false
+      userRole.value = null
+    }
+  })
+})
+
+const putlogout = async () => {
+  await signOut(auth)
   router.push('/login')
 }
 </script>
+
 <template>
   <div class="container">
     <nav class="navbar navbar-expand-md">
@@ -26,38 +54,33 @@ const putlogout = () => {
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <router-link to="/" class="nav-link" active-class="nav-active" aria-current="page"
-              >Home</router-link
+          <li class="nav-item" v-if="!isLoggedIn || userRole === 'user'">
+            <router-link to="/home" class="nav-link" active-class="nav-active">Home</router-link>
+          </li>
+          <li class="nav-item" v-if="isLoggedIn && userRole === 'admin'">
+            <router-link to="/usermanagement" class="nav-link" active-class="nav-active"
+              >User Management</router-link
             >
           </li>
-          <li class="nav-item">
-            <router-link to="/activities" class="nav-link" active-class="nav-active"
-              >Activities</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/news" class="nav-link" active-class="nav-active">News</router-link>
-          </li>
-          <li class="nav-item-register" v-if="!logstate">
+          <li class="nav-item-register" v-if="!isLoggedIn">
             <router-link to="/register" class="nav-link" active-class="nav-active"
               >Register</router-link
             >
           </li>
-          <li class="nav-item" v-if="logstate && systemrole === 'user'">
+          <li class="nav-item" v-if="isLoggedIn && userRole === 'user'">
             <router-link to="/myprofile" class="nav-link" active-class="nav-active"
               >MyProfile</router-link
             >
           </li>
-          <li class="nav-item" v-if="logstate && systemrole === 'admin'">
-            <router-link to="/management" class="nav-link" active-class="nav-active"
-              >Management</router-link
+          <li class="nav-item" v-if="isLoggedIn && userRole === 'admin'">
+            <router-link to="/eventmanagement" class="nav-link" active-class="nav-active"
+              >Event Management</router-link
             >
           </li>
-          <li class="nav-item-login" v-if="!logstate">
+          <li class="nav-item-login" v-if="!isLoggedIn">
             <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
           </li>
-          <li class="nav-item-logout" v-if="logstate">
+          <li class="nav-item-logout" v-if="isLoggedIn">
             <button class="nav-link out-btn" @click="putlogout">Logout</button>
           </li>
         </ul>

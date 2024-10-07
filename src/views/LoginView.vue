@@ -5,12 +5,6 @@ import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { query, where, getDocs, collection } from 'firebase/firestore'
 import { db } from '../firebase/init.js'
 const auth = getAuth()
-// the admin information hardcode
-// const adminAccount = {
-//   username: 'admin',
-//   password: 'admin181'
-// }
-// Reactive reference for form data
 const formData = ref({
   email: '',
   password: ''
@@ -34,11 +28,10 @@ const submitForm = () => {
         const querySnapshot = await getDocs(q)
 
         if (!querySnapshot.empty) {
-          // 获取第一个匹配的文档
           const userDoc = querySnapshot.docs[0]
           const userData = userDoc.data()
           if (userData.role === 'admin') {
-            router.push('/Management')
+            router.push('/EventManagement')
           } else {
             router.push('/myprofile')
           }
@@ -48,8 +41,7 @@ const submitForm = () => {
         }
       })
       .catch((error) => {
-        console.log('Error code:', error.code) // 打印登录时遇到的错误
-        // 处理登录错误，例如显示错误消息
+        console.log('Error code:', error.code)
       })
   }
 }

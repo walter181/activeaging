@@ -1,27 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
-import NewsView from '../views/NewsView.vue'
 import RegisterView from '../views/RegisterView.vue'
-import ActivitiesView from '@/views/ActivitiesView.vue'
+import HomeView from '@/views/HomeView.vue'
 import Myprofile from '@/views/Myprofile.vue'
-import ManagementView from '@/views/ManagementView.vue'
+import EventManagementView from '@/views/EventManagementView.vue'
+import UserManagementView from '@/views/UserManagementView.vue'
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: HomeView
-  },
   {
     path: '/login',
     name: 'Login',
     component: LoginView
-  },
-  {
-    path: '/news',
-    name: 'News',
-    component: NewsView
   },
   {
     path: '/register',
@@ -29,9 +18,9 @@ const routes = [
     component: RegisterView
   },
   {
-    path: '/activities',
-    name: 'Activities',
-    component: ActivitiesView
+    path: '/home',
+    name: 'Home',
+    component: HomeView
   },
   {
     path: '/myprofile',
@@ -39,9 +28,14 @@ const routes = [
     component: Myprofile
   },
   {
-    path: '/management',
-    name: 'Management',
-    component: ManagementView
+    path: '/eventmanagement',
+    name: 'EventManagement',
+    component: EventManagementView
+  },
+  {
+    path: '/usermanagement',
+    name: 'UserManagement',
+    component: UserManagementView
   }
 ]
 

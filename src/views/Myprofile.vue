@@ -1,118 +1,146 @@
-<script setup>
-import { ref, computed } from 'vue'
-// To initialize
-const inputrate = ref(0)
-// reference and learn from https://gist.github.com/ChaDonSom/a61d2d592e06c90be23b77f257c587d2
-// To initialize rates directly from localStorage, i storage the list in localStorage
-const rates = ref(JSON.parse(localStorage.getItem('gardenRatings')) || [])
-
-// count to the average rate for the activity
-const averageRate = computed(() => {
-  if (rates.value.length === 0) {
-    return 0
-  } else {
-    const sum = rates.value.reduce((a, b) => a + b, 0)
-    return (sum / rates.value.length).toFixed(1)
-  }
-})
-
-// to save the rate to the rates list in localStorage
-const saveRate = () => {
-  const rating = inputrate.value
-  if (rating >= 1 && rating <= 10) {
-    // Add the new rating to the rates array
-    rates.value.push(rating)
-    // translate to json and then storage in localStorage
-    localStorage.setItem('gardenRatings', JSON.stringify(rates.value))
-    // to save the rate to the rates list in localStorage
-    inputrate.value = '' // Clear the input
-  } else {
-    alert('Please enter a number between 1 and 10')
-  }
-}
-</script>
-
 <template>
   <div class="container">
-    <h4 class="mt-4">Activities you have participated:</h4>
-    <div class="row g-4 acttable mt-3">
-      <div class="col-md-6 mb-1">
-        <div class="activity" style="padding-left: 3%">
-          <div class="row">
-            <div style="margin-top: 2%">
-              <h4>Gardening for Wellness</h4>
-              <p>
-                Description: A relaxing outdoor activity where seniors learn to grow flowers,
-                vegetables, and herbs while enjoying the health benefits of gardening.
-              </p>
-            </div>
-            <div class="rate mt-2 row">
-              <div>Please rate this activity:</div>
-              <div class="col-md-4 d-flex mt-1 mb-3">
-                <input
-                  type="number"
-                  v-model="inputrate"
-                  placeholder="Enter 1-10"
-                  min="1"
-                  max="10"
-                  class="form-control me-3"
-                />
-                <button @click="saveRate" class="btn btn-primary">Submit</button>
-              </div>
-              <div class="col-md-8 d-flex mt-1 mb-3 align-items-center">
-                <div>Average rate:</div>
-                <div>{{ averageRate }}</div>
-              </div>
-            </div>
-          </div>
+    <div class="bookingevent mt-4" style="margin: 20px">
+      <h3>Book an Event</h3>
+      <div class="row">
+        <div class="col-md-8 mb-3">
+          <input
+            type="text"
+            v-model="newEventName"
+            placeholder="Event Name"
+            class="form-control"
+            style="height: 45px"
+          />
+        </div>
+        <div class="col-md-4">
+          <button @click="bookEvent" class="btn-submit">Book Event</button>
         </div>
       </div>
     </div>
-    <h4>Future Activities:</h4>
-    <div class="row g-4 acttable mt-3">
-      <div class="col-md-6 mb-1">
-        <div class="activity">
-          <div class="row">
-            <div style="margin-top: 20px; padding-left: 30px">
-              <h4>Silver Yoga</h4>
-              <p>
-                Description: A yoga class specifically designed for seniors, helping them improve
-                flexibility, balance, and breathing control. The class features gentle movements and
-                poses suitable for various physical conditions, aiming to enhance both physical and
-                mental well-being.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 mb-1">
-        <div class="activity">
-          <div class="row">
-            <div style="margin-top: 20px; padding-left: 30px">
-              <h4>Traditional Craft Workshop</h4>
-              <p>
-                Description: In this workshop, seniors will learn and practice traditional crafts
-                such as knitting, embroidery, and woodworking. This is not only an opportunity to
-                create beautiful handmade items but also a way to preserve cultural heritage.
-                Participants can also showcase their creations to family and friends.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+
+    <div class="search-bar mt-4">
+      <input
+        type="text"
+        v-model="searchTerm"
+        placeholder="Search by event name..."
+        class="form-control"
+      />
+    </div>
+
+    <div class="eventtable mt-4">
+      <DataTable :value="searchEvents()" paginator :rows="10">
+        <Column field="name" header="Event Name" sortable></Column>
+        <Column field="date" header="Event Date" sortable></Column>
+        <Column field="location" header="Event Location"></Column>
+        <Column field="description" header="Event Description"></Column>
+      </DataTable>
     </div>
   </div>
 </template>
 
-<style scoped>
-.activity {
-  /* height: 200px; */
-  background-color: rgb(251, 251, 251);
-  border: 2px solid #e9e9e9ae;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+<script setup>
+import { ref, onMounted } from 'vue'
+import { db } from '../firebase/init.js'
+import { collection, addDoc, getDocs, query, where } from 'firebase/firestore'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import { getAuth } from 'firebase/auth'
+import axios from 'axios'
+
+const events = ref([])
+const searchTerm = ref('')
+const newEventName = ref('')
+const userId = ref('')
+const email = ref('')
+const bookingDate = ref(new Date().toISOString().split('T')[0])
+
+const fetchUserData = () => {
+  const auth = getAuth()
+  const currentUser = auth.currentUser
+  if (currentUser) {
+    userId.value = currentUser.uid
+    email.value = currentUser.email
+  } else {
+    alert('No user is currently logged in.')
+  }
 }
-.acttable {
-  margin-bottom: 80px;
+
+// 获取事件列表
+const fetchEvents = async () => {
+  const querySnapshot = await getDocs(collection(db, 'events'))
+  events.value = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+}
+
+const searchEvents = () => {
+  if (!searchTerm.value) {
+    return events.value
+  }
+  return events.value.filter((event) =>
+    event.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+  )
+}
+
+const bookEvent = async () => {
+  if (!newEventName.value) {
+    alert('Please enter event name.')
+    return
+  }
+  const eventQuery = query(collection(db, 'events'), where('name', '==', newEventName.value))
+  const querySnapshot = await getDocs(eventQuery)
+  if (querySnapshot.empty) {
+    alert('Event not found.')
+    return
+  }
+  const eventDoc = querySnapshot.docs[0]
+  await addDoc(collection(db, 'bookings'), {
+    eventId: eventDoc.id,
+    userId: userId.value,
+    email: email.value,
+    bookingDate: bookingDate.value,
+    eventName: eventDoc.data().name
+  })
+  alert('Booking succeeded')
+
+  try {
+    const response = await axios.post('https://sendemail-sjnij7mjvq-uc.a.run.app', {
+      email: email.value
+    })
+    console.log('response',response.data)
+
+  } catch (error) {
+    console.error('Error sending email', error)
+    alert('Error sending email')
+  }
+
+  fetchEvents()
+}
+
+// 页面加载时获取用户数据和事件
+onMounted(() => {
+  fetchUserData()
+  fetchEvents()
+})
+</script>
+
+<style scoped>
+.bookingevent {
+  margin-top: 30px;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.06);
+  border: 2px solid #28a7462c;
+}
+.btn-submit {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  width: 220px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.btn-submit:hover {
+  background-color: #218838;
 }
 </style>
